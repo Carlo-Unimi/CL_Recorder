@@ -6,11 +6,24 @@ void menu::display()
 	wrefresh(this->content_window);
 }
 
+/**
+ * @brief draws a horizontal line for the options section based on the lenght of the options.
+ */
+void menu::draw_option_line(int h)
+{
+	int total_length = 1;
+	for (const auto &opt : this->options)
+		total_length += opt.length() + 4;
+	
+	std::string line(total_length, '-');
+	mvwprintw(this->window, this->title.size() + h, 2, line.c_str());
+}
+
 void menu::draw_options()
 {
-	// prints the options on a single row
-	mvwprintw(this->window, this->title.size() + 2, 2, "------------------------------------------------------------");
 	int aux = 2;
+	// prints the options on a single row
+	this->draw_option_line(2);
 	for (size_t i = 0; i < this->options.size(); i++)
 	{
 		mvwprintw(this->window, this->title.size() + 3, aux, "|");
@@ -22,8 +35,8 @@ void menu::draw_options()
 		aux += this->options[i].length() + 4;
 	}
 	mvwprintw(this->window, this->title.size() + 3, aux, "|");
-	mvwprintw(this->window, this->title.size() + 4, 2, "------------------------------------------------------------");
-	wrefresh(this->window);
+	this->draw_option_line(4);	
+
 }
 
 menu::menu(std::vector<std::string> title, std::vector<std::string> options) : title(title), options(options)

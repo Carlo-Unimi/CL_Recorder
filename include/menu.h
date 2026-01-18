@@ -15,6 +15,8 @@ private:
 	 */
 	void display();
 	void draw_options();
+	void draw_option_line(int h);
+
 	int current_option;
 
 public:
