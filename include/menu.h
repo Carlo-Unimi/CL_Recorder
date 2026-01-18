@@ -14,7 +14,13 @@ private:
 	 * @brief display the menu on the screen.
 	 */
 	void display();
+    /**
+     * @brief draws the options under the title with the current selected option highlighted.
+     */
 	void draw_options();
+    /**
+     * @brief draws a horizontal line for the options section based on the lenght of the options.
+     */
 	void draw_option_line(int h);
 
 	int current_option;
@@ -24,8 +30,6 @@ public:
 	std::vector<std::string> options;
 	WINDOW *window;			// the entire menu window
 	WINDOW *content_window; // the content area window
-
-	bool can_start_record = false; // flag to indicate if the START RECORDING button is printable
 
 	/**
 	 * @brief constructor for the menu class.

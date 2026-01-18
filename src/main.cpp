@@ -19,7 +19,7 @@ int main()
         "#     #           ####   ####   #     #   #  ####   #   #  ####   ####  ",
         "#     #           #  #   #      #     #   #  #  #   #   #  #      #  #  ",
         " ###  #####       #   #  #####   ###   ###   #   #  ####   #####  #   # "};
-    std::vector<std::string> options = {"Recording options", "Input device", "File paths", "Exit"};
+    std::vector<std::string> options = {"Recording options", "Input device", "File paths", "Exit", "START RECORDING"};
 
     menu start_menu(title, options);
 

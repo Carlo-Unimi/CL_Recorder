@@ -6,9 +6,6 @@ void menu::display()
 	wrefresh(this->content_window);
 }
 
-/**
- * @brief draws a horizontal line for the options section based on the lenght of the options.
- */
 void menu::draw_option_line(int h)
 {
 	int total_length = 1;
@@ -59,6 +56,11 @@ menu::menu(std::vector<std::string> title, std::vector<std::string> options) : t
 	// creates the content window
 	this->content_window = derwin(this->window, max_y - 12, max_x - 4, 11, 2);
 	box(this->content_window, 0, 0);
+
+
+
+
+
 
 	this->display();
 }
