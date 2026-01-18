@@ -16,6 +16,37 @@ void menu::draw_option_line(int h)
 	mvwprintw(this->window, this->title.size() + h, 2, line.c_str());
 }
 
+void menu::drawContentWindow()
+{
+	wclear(this->content_window);
+	box(this->content_window, 0, 0);
+	std::vector<std::string> content;
+	switch (this->current_option)
+	{
+	case 0:
+		content = {};
+		break;
+	case 1:
+		content = {};
+		break;
+	case 2:
+		content = {};
+		break;
+	case 3:
+		content = {"Exit option selected. Press Enter to exit the program."};
+		break;
+	case 4:
+		content = {"START RECORDING option selected.", "Press Enter to start recording."};
+		break;
+	default:
+		content = {"No content available."};
+		break;
+	}
+	for (size_t i = 0; i < content.size(); i++) {
+		mvwprintw(this->content_window, 1 + i, 2, content[i].c_str());
+	}
+}
+
 void menu::draw_options()
 {
 	int aux = 2;
@@ -33,7 +64,6 @@ void menu::draw_options()
 	}
 	mvwprintw(this->window, this->title.size() + 3, aux, "|");
 	this->draw_option_line(4);	
-
 }
 
 menu::menu(std::vector<std::string> title, std::vector<std::string> options) : title(title), options(options)
@@ -56,19 +86,16 @@ menu::menu(std::vector<std::string> title, std::vector<std::string> options) : t
 	// creates the content window
 	this->content_window = derwin(this->window, max_y - 12, max_x - 4, 11, 2);
 	box(this->content_window, 0, 0);
-
-
-
-
-
-
-	this->display();
 }
 
 void menu::run()
 {
 	while (true)
 	{
+		// draws the content window based on the highlited option
+		this->drawContentWindow();
+		this->display();
+
 		int ch = wgetch(this->window);
 		switch (ch)
 		{
