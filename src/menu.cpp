@@ -11,7 +11,7 @@ void menu::draw_option_line(int h)
 	int total_length = 1;
 	for (const auto &opt : this->options)
 		total_length += opt.length() + 4;
-	
+
 	std::string line(total_length, '-');
 	mvwprintw(this->window, this->title.size() + h, 2, line.c_str());
 }
@@ -20,31 +20,31 @@ void menu::drawContentWindow()
 {
 	wclear(this->content_window);
 	box(this->content_window, 0, 0);
-	std::vector<std::string> content;
 	switch (this->current_option)
 	{
 	case 0:
-		content = {};
+		this->content[0].content = {};
 		break;
 	case 1:
-		content = {};
+		this->content[1].content = {};
 		break;
 	case 2:
-		content = {};
+		this->content[2].content = {};
 		break;
 	case 3:
-		content = {"Exit option selected. Press Enter to exit the program."};
+		this->content[3].content = {"Exit option selected. Press Enter to exit the program."};
 		break;
 	case 4:
-		content = {"START RECORDING option selected.", "Press Enter to start recording."};
+		this->content[4].content = {"START RECORDING option selected.", "Press Enter to start recording."};
 		break;
 	default:
-		content = {"No content available."};
+		this->content[this->current_option].content = {"No content available."};
 		break;
 	}
-	for (size_t i = 0; i < content.size(); i++) {
-		mvwprintw(this->content_window, 1 + i, 2, content[i].c_str());
-	}
+
+	// display the content for the current option, if there is any
+	for (size_t i = 0; i < this->content[this->current_option].content.size(); i++)
+		mvwprintw(this->content_window, 1 + i, 2, this->content[this->current_option].content[i].c_str());
 }
 
 void menu::draw_options()
@@ -63,11 +63,12 @@ void menu::draw_options()
 		aux += this->options[i].length() + 4;
 	}
 	mvwprintw(this->window, this->title.size() + 3, aux, "|");
-	this->draw_option_line(4);	
+	this->draw_option_line(4);
 }
 
 menu::menu(std::vector<std::string> title, std::vector<std::string> options) : title(title), options(options)
 {
+	this->content.resize(options.size());
 	int max_y = getmaxy(stdscr);
 	int max_x = getmaxx(stdscr);
 
@@ -114,7 +115,8 @@ void menu::run()
 				this->current_option = 0;
 			break;
 		case 10: // enter key
-			if (this->options[this->current_option] == "Exit") return;
+			if (this->options[this->current_option] == "Exit")
+				return;
 			// free memory and exit the program
 			break;
 		}
