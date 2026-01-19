@@ -21,6 +21,11 @@ private:
     void display();
 
     /**
+     * @brief prints the content of the current selected option in the content window.
+     */
+    void printContent();
+
+    /**
      * @brief draws the options under the title with the current selected option highlighted.
      */
     void draw_options();
@@ -36,6 +41,7 @@ private:
     void drawContentWindow();
 
     int current_option;
+    bool running;
 
 public:
     std::vector<std::string> title;
@@ -43,6 +49,7 @@ public:
     WINDOW *window;         // the entire menu window
     WINDOW *content_window; // the content area window
     std::vector<content_info> content;
+    char path[256];         // buffer for file path input
 
     /**
      * @brief constructor for the menu class.

@@ -6,6 +6,12 @@ void menu::display()
 	wrefresh(this->content_window);
 }
 
+void menu::printContent()
+{
+	for (size_t i = 0; i < this->content[this->current_option].content.size(); i++)
+		mvwprintw(this->content_window, 1 + i, 2, this->content[this->current_option].content[i].c_str());
+}
+
 void menu::draw_option_line(int h)
 {
 	int total_length = 1;
@@ -23,28 +29,41 @@ void menu::drawContentWindow()
 	switch (this->current_option)
 	{
 	case 0:
-		this->content[0].content = {};
+		this->content[0].content = {"Configure your recording settings here:"};
+		printContent();
 		break;
 	case 1:
-		this->content[1].content = {};
+		this->content[1].content = {"Select an input device from the available options:"};
+		printContent();
 		break;
 	case 2:
-		this->content[2].content = {};
+		this->content[2].content = {"Specify file paths for saving recordings:", "[default: ~/recordings/]", "", "press enter to modify"};
+		printContent();
+
+		if (wgetch(this->content_window) == 10) // press enter to modify the path
+		{
+			mvwprintw(this->content_window, 5, 2, "-> ");
+			echo();
+			wgetnstr(this->content_window, this->path, 50);
+			noecho();
+			this->content[2].content.push_back("path set to: " + std::string(this->path));
+			printContent();
+		}
+
+		timeout(3000);
 		break;
 	case 3:
-		this->content[3].content = {"Exit option selected. Press Enter to exit the program."};
+		this->content[3].content = {"Exit option selected.", "", "Press Enter to exit the program."};
+		printContent();
 		break;
 	case 4:
-		this->content[4].content = {"START RECORDING option selected.", "Press Enter to start recording."};
+		this->content[4].content = {"START RECORDING option selected.", "", "Press Enter to start recording."};
+		printContent();
 		break;
 	default:
 		this->content[this->current_option].content = {"No content available."};
 		break;
 	}
-
-	// display the content for the current option, if there is any
-	for (size_t i = 0; i < this->content[this->current_option].content.size(); i++)
-		mvwprintw(this->content_window, 1 + i, 2, this->content[this->current_option].content[i].c_str());
 }
 
 void menu::draw_options()
@@ -91,9 +110,11 @@ menu::menu(std::vector<std::string> title, std::vector<std::string> options) : t
 
 void menu::run()
 {
-	while (true)
+	while (running)
 	{
+		this->draw_options();
 		// draws the content window based on the highlited option
+		this->display();
 		this->drawContentWindow();
 		this->display();
 
@@ -116,10 +137,8 @@ void menu::run()
 			break;
 		case 10: // enter key
 			if (this->options[this->current_option] == "Exit")
-				return;
-			// free memory and exit the program
+				running = false;
 			break;
 		}
-		this->draw_options();
 	}
 }
