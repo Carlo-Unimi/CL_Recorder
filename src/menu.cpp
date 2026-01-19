@@ -40,6 +40,9 @@ void menu::drawContentWindow()
 		this->content[2].content = {"Specify file paths for saving recordings:", "[default: ~/recordings/]", "", "press enter to modify"};
 		printContent();
 
+		if (path[0] != '\0')
+			mvwprintw(this->content_window, getmaxy(this->content_window) - 2, 2, "Current path: %s", this->path);
+
 		if (wgetch(this->content_window) == 10) // press enter to modify the path
 		{
 			mvwprintw(this->content_window, 5, 2, "-> ");
@@ -49,7 +52,6 @@ void menu::drawContentWindow()
 			this->content[2].content.push_back("path set to: " + std::string(this->path));
 			printContent();
 		}
-
 		timeout(3000);
 		break;
 	case 3:
@@ -90,7 +92,7 @@ menu::menu(std::vector<std::string> title, std::vector<std::string> options) : t
 	this->content.resize(options.size());
 	int max_y = getmaxy(stdscr);
 	int max_x = getmaxx(stdscr);
-
+	path[0] = '\0'; // initialize path buffer
 	this->current_option = 0;
 
 	this->window = newwin(max_y, max_x, 0, 0);
