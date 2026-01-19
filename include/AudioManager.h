@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <cstring>
 #include <alsa/asoundlib.h>
 
 // struct for audio device information
