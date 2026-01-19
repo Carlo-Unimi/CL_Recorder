@@ -1,7 +1,12 @@
+#ifndef MENU_H
+#define MENU_H
+
 #include <vector>
 #include <string>
 #include <ncurses.h>
 #include <iostream>
+
+#include "../include/AudioManager.h"
 
 struct content_info
 {
@@ -40,8 +45,15 @@ private:
      */
     void drawContentWindow();
 
+    /**
+     * @brief prints the list of audio input devices in the content window.
+     * @param devices vector of AudioDevice structs representing the available input devices.
+     */
+    void printDevices();
+
     int current_option;
     bool running;
+    std::vector<AudioDevice> devices;
 
 public:
     std::vector<std::string> title;
@@ -60,3 +72,5 @@ public:
     menu(std::vector<std::string> title, std::vector<std::string> options);
     void run();
 };
+
+#endif

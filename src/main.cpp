@@ -4,6 +4,7 @@
 #include <ncurses.h>
 
 #include "../include/menu.h"
+#include "../include/AudioManager.h"
 
 /*    PROGRAM HEAD    */
 int main()

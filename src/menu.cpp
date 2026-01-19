@@ -22,6 +22,12 @@ void menu::draw_option_line(int h)
 	mvwprintw(this->window, this->title.size() + h, 2, line.c_str());
 }
 
+void menu::printDevices()
+{
+	for (size_t i = 0; i < this->devices.size(); i++)
+		mvwprintw(this->content_window, 2 + i, 2, this->devices[i].name.c_str());
+}
+
 void menu::drawContentWindow()
 {
 	wclear(this->content_window);
@@ -35,6 +41,10 @@ void menu::drawContentWindow()
 	case 1:
 		this->content[1].content = {"Select an input device from the available options:"};
 		printContent();
+
+		printDevices();
+
+
 		break;
 	case 2:
 		this->content[2].content = {"Specify file paths for saving recordings:", "[default: ~/recordings/]", "", "press enter to modify"};
@@ -94,6 +104,7 @@ menu::menu(std::vector<std::string> title, std::vector<std::string> options) : t
 	int max_x = getmaxx(stdscr);
 	path[0] = '\0'; // initialize path buffer
 	this->current_option = 0;
+	this->devices = AudioManager::list_input_devices();
 
 	this->window = newwin(max_y, max_x, 0, 0);
 	keypad(this->window, TRUE);
