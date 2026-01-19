@@ -25,7 +25,7 @@ void menu::draw_option_line(int h)
 void menu::printDevices()
 {
 	for (size_t i = 0; i < this->devices.size(); i++)
-		mvwprintw(this->content_window, 2 + i, 2, this->devices[i].name.c_str());
+		mvwprintw(this->content_window, 3 + i, 3, this->devices[i].name.c_str());
 }
 
 void menu::drawContentWindow()
