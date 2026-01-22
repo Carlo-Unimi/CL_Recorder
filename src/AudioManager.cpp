@@ -23,7 +23,8 @@ std::vector<AudioDevice> AudioManager::list_input_devices() {
         {    
             AudioDevice device;
             device.name = nameStr;
-
+            device.selected = false;
+            
             if (desc != NULL) {
                 std::string d(desc);
                 size_t pos;
