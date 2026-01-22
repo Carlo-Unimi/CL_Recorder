@@ -37,4 +37,7 @@ clean:
 	@echo "Cleaning..."
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
 
+run: $(TARGET)
+	@./$(TARGET)
+
 .PHONY: all clean directories
