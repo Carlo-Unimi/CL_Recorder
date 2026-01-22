@@ -76,9 +76,11 @@ void menu::drawContentWindow()
 		if (wgetch(this->content_window) == 10) // press enter to modify the path
 		{
 			mvwprintw(this->content_window, 5, 2, "-> ");
+			curs_set(1);
 			echo();
 			wgetnstr(this->content_window, this->path, 50);
 			noecho();
+			curs_set(0);
 			this->content[2].content.push_back("path set to: " + std::string(this->path));
 			printContent();
 		}

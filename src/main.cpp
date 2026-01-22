@@ -12,6 +12,7 @@ int main()
     initscr();
     noecho();
     cbreak();
+    curs_set(0); // Hide the cursor
     refresh();
 
     std::vector<std::string> title = {
