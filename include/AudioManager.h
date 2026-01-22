@@ -12,7 +12,7 @@ struct AudioDevice {
   std::string name;        // id
   std::string description; // readable description
   std::string ioid;        // input/output
-  bool selected;   // selection flag
+  bool selected;           // selection flag
 };
 
 class AudioManager {

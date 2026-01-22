@@ -24,8 +24,29 @@ void menu::draw_option_line(int h)
 
 void menu::printDevices()
 {
+	int maxLen = 0;
+
 	for (size_t i = 0; i < this->devices.size(); i++)
+	{
 		mvwprintw(this->content_window, 3 + i, 3, this->devices[i].description.c_str());
+		if ((int)this->devices[i].description.length() > maxLen)
+			maxLen = this->devices[i].description.length();
+	}
+	
+	// draw pipes after the device list
+	for (size_t i = 0; i < this->devices.size(); i++)
+	{
+		mvwprintw(this->content_window, 3 + i, 4 + maxLen, "|");
+
+		if (this->devices[i].selected)
+		{
+			wattron(this->content_window, A_REVERSE);
+			mvwprintw(this->content_window, 3 + i, 6 + maxLen, "[x]");
+			wattroff(this->content_window, A_REVERSE);
+		} else
+			mvwprintw(this->content_window, 3 + i, 6 + maxLen, "[ ]");
+	}
+	
 }
 
 void menu::drawContentWindow()
@@ -43,7 +64,7 @@ void menu::drawContentWindow()
 		printContent();
 
 		printDevices();
-
+		
 
 		break;
 	case 2:
