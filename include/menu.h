@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "../include/AudioManager.h"
+#include "../include/Recorder.h"
 
 struct content_info
 {
@@ -54,6 +55,7 @@ private:
     int current_option;
     bool running;
     std::vector<AudioDevice> devices;
+    Recorder recorder;
 
 public:
     std::vector<std::string> title;
