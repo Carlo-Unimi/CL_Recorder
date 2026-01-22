@@ -61,7 +61,7 @@ public:
     WINDOW *window;         // the entire menu window
     WINDOW *content_window; // the content area window
     std::vector<content_info> content;
-    char path[256];         // buffer for file path input
+    char path[256]; // buffer for file path input
 
     /**
      * @brief constructor for the menu class.
@@ -70,6 +70,7 @@ public:
      * initializes the menu with the given title and sets up the window. it doesn't display the menu yet.
      */
     menu(std::vector<std::string> title, std::vector<std::string> options);
+    ~menu();
     void run();
 };
 

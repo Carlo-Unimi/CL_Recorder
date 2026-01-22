@@ -32,7 +32,7 @@ void menu::printDevices()
 		if ((int)this->devices[i].description.length() > maxLen)
 			maxLen = this->devices[i].description.length();
 	}
-	
+
 	// draw pipes after the device list
 	for (size_t i = 0; i < this->devices.size(); i++)
 	{
@@ -43,10 +43,10 @@ void menu::printDevices()
 			wattron(this->content_window, A_REVERSE);
 			mvwprintw(this->content_window, 3 + i, 6 + maxLen, "[x]");
 			wattroff(this->content_window, A_REVERSE);
-		} else
+		}
+		else
 			mvwprintw(this->content_window, 3 + i, 6 + maxLen, "[ ]");
 	}
-	
 }
 
 void menu::drawContentWindow()
@@ -64,7 +64,6 @@ void menu::drawContentWindow()
 		printContent();
 
 		printDevices();
-		
 
 		break;
 	case 2:
@@ -125,6 +124,7 @@ menu::menu(std::vector<std::string> title, std::vector<std::string> options) : t
 	int max_x = getmaxx(stdscr);
 	path[0] = '\0'; // initialize path buffer
 	this->current_option = 0;
+	this->running = true;
 	this->devices = AudioManager::list_input_devices();
 
 	this->window = newwin(max_y, max_x, 0, 0);
@@ -140,6 +140,12 @@ menu::menu(std::vector<std::string> title, std::vector<std::string> options) : t
 	// creates the content window
 	this->content_window = derwin(this->window, max_y - 12, max_x - 4, 11, 2);
 	box(this->content_window, 0, 0);
+}
+
+menu::~menu()
+{
+	delwin(this->content_window);
+	delwin(this->window);
 }
 
 void menu::run()
