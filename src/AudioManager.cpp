@@ -24,7 +24,7 @@ std::vector<AudioDevice> AudioManager::list_input_devices() {
             AudioDevice device;
             device.name = nameStr;
             device.selected = false;
-            
+
             if (desc != NULL) {
                 std::string d(desc);
                 size_t pos;
@@ -50,5 +50,7 @@ std::vector<AudioDevice> AudioManager::list_input_devices() {
     }
 
     snd_device_name_free_hint(hints);
+    if (!devices.empty())
+        devices[0].selected = true; // select first device by default
     return devices;
 }
