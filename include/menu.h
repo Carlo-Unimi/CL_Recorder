@@ -49,7 +49,7 @@ private:
      * @brief prints the list of audio input devices in the content window.
      * @param devices vector of AudioDevice structs representing the available input devices.
      */
-    void printDevices();
+    int printDevices();
 
     int current_option;
     bool running;

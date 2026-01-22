@@ -22,37 +22,29 @@ void menu::draw_option_line(int h)
 	mvwprintw(this->window, this->title.size() + h, 2, line.c_str());
 }
 
-void menu::printDevices()
+int menu::printDevices()
 {
 	int maxLen = 0;
 
 	for (size_t i = 0; i < this->devices.size(); i++)
 	{
-		mvwprintw(this->content_window, 3 + i, 3, this->devices[i].description.c_str());
+		mvwprintw(this->content_window, 5 + i, 3, this->devices[i].description.c_str());
 		if ((int)this->devices[i].description.length() > maxLen)
 			maxLen = this->devices[i].description.length();
 	}
 
 	// draw pipes after the device list
 	for (size_t i = 0; i < this->devices.size(); i++)
-	{
-		mvwprintw(this->content_window, 3 + i, 4 + maxLen, "|");
+		mvwprintw(this->content_window, 5 + i, 4 + maxLen, "| [ ]");
 
-		if (this->devices[i].selected)
-		{
-			wattron(this->content_window, A_REVERSE);
-			mvwprintw(this->content_window, 3 + i, 6 + maxLen, "[x]");
-			wattroff(this->content_window, A_REVERSE);
-		}
-		else
-			mvwprintw(this->content_window, 3 + i, 6 + maxLen, "[ ]");
-	}
+	return maxLen;
 }
 
 void menu::drawContentWindow()
 {
 	wclear(this->content_window);
 	box(this->content_window, 0, 0);
+	int sel, maxLen;
 	switch (this->current_option)
 	{
 	case 0:
@@ -60,11 +52,17 @@ void menu::drawContentWindow()
 		printContent();
 		break;
 	case 1:
-		this->content[1].content = {"Select an input device from the available options:"};
+		this->content[1].content = {"Select an input device from the available options:", "", "[use arrow keys to select]"};
 		printContent();
 
-		printDevices();
+		maxLen = printDevices();
 
+		// select the current device
+		for (size_t i = 0; i < this->devices.size(); i++)
+		{
+			if (this->devices[i].selected)
+				mvwprintw(this->content_window, 5 + i, maxLen + 7, "X");
+		}
 		break;
 	case 2:
 		this->content[2].content = {"Specify file paths for saving recordings:", "[default: ~/recordings/]", "", "press enter to modify"};
@@ -72,19 +70,6 @@ void menu::drawContentWindow()
 
 		if (path[0] != '\0')
 			mvwprintw(this->content_window, getmaxy(this->content_window) - 2, 2, "Current path: %s", this->path);
-
-		if (wgetch(this->content_window) == 10) // press enter to modify the path
-		{
-			mvwprintw(this->content_window, 5, 2, "-> ");
-			curs_set(1);
-			echo();
-			wgetnstr(this->content_window, this->path, 50);
-			noecho();
-			curs_set(0);
-			this->content[2].content.push_back("path set to: " + std::string(this->path));
-			printContent();
-		}
-		timeout(3000);
 		break;
 	case 3:
 		this->content[3].content = {"Exit option selected.", "", "Press Enter to exit the program."};
@@ -177,9 +162,61 @@ void menu::run()
 			else
 				this->current_option = 0;
 			break;
+		case KEY_UP:
+		case 'w':
+			if (this->current_option == 1 && !this->devices.empty())
+			{
+				int sel = -1;
+				for (size_t i = 0; i < this->devices.size(); i++)
+					if (this->devices[i].selected)
+						sel = i;
+
+				if (sel != -1)
+					this->devices[sel].selected = false;
+
+				if (sel > 0)
+					sel--;
+				else
+					sel = this->devices.size() - 1;
+
+				this->devices[sel].selected = true;
+			}
+			break;
+		case KEY_DOWN:
+		case 's':
+			if (this->current_option == 1 && !this->devices.empty())
+			{
+				int sel = -1;
+				for (size_t i = 0; i < this->devices.size(); i++)
+					if (this->devices[i].selected)
+						sel = i;
+
+				if (sel != -1)
+					this->devices[sel].selected = false;
+
+				if (sel < (int)this->devices.size() - 1)
+					sel++;
+				else
+					sel = 0;
+
+				this->devices[sel].selected = true;
+			}
+			break;
 		case 10: // enter key
 			if (this->options[this->current_option] == "Exit")
+			{
 				running = false;
+			}
+			else if (this->current_option == 2)
+			{
+				mvwprintw(this->content_window, 5, 2, "-> ");
+				curs_set(1);
+				echo();
+				wgetnstr(this->content_window, this->path, 50);
+				noecho();
+				curs_set(0);
+				this->content[2].content.push_back("path set to: " + std::string(this->path));
+			}
 			break;
 		}
 	}
