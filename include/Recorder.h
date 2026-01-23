@@ -22,12 +22,12 @@ public:
   /**
    * @brief constructs a Recorder object.
    */
-  Recorder();
+  Recorder() = default;
 
   /**
    * @brief destructs the Recorder object, ensuring any ongoing recording is stopped.
    */
-  ~Recorder();
+  ~Recorder() = default;
 
   /**
    * @brief starts the recording process in a separate thread.
