@@ -16,8 +16,17 @@
  */
 class Recorder
 {
+private:
+
 public:
+  /**
+   * @brief constructs a Recorder object.
+   */
   Recorder();
+
+  /**
+   * @brief destructs the Recorder object, ensuring any ongoing recording is stopped.
+   */
   ~Recorder();
 
   /**
@@ -37,34 +46,6 @@ public:
    * @brief checks if a recording is currently in progress.
    */
   bool isRecording() const;
-
-private:
-  /**
-   * @brief the main loop that reads from the audio device and writes to the file.
-   */
-  void recordingLoop(std::string deviceName, std::string filePath);
-
-  /**
-   * @brief writes a WAV header to the file stream.
-   * @param file output file stream.
-   * @param sampleRate audio sample rate.
-   * @param bitsPerSample bits per sample (e.g. 16).
-   * @param channels number of channels.
-   */
-  void writeWavHeader(std::ofstream &file, int sampleRate, int bitsPerSample, int channels);
-
-  /**
-   * @brief updates the WAV header with the final file size after recording stops.
-   */
-  void updateWavHeader(const std::string &filePath);
-
-  std::atomic<bool> m_recording; // atomic flag to control the recording thread
-  std::thread m_worker;          // the thread performing the I/O
-
-  // default Recording Configuration
-  unsigned int m_sampleRate = 44100;
-  int m_channels = 2;
-  snd_pcm_format_t m_format = SND_PCM_FORMAT_S16_LE;
 };
 
 #endif

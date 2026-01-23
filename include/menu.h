@@ -72,7 +72,12 @@ public:
      * initializes the menu with the given title and sets up the window. it doesn't display the menu yet.
      */
     menu(std::vector<std::string> title, std::vector<std::string> options);
+
     ~menu();
+    
+    /**
+     * @brief starts the menu interaction loop.
+     */
     void run();
 };
 
