@@ -168,7 +168,7 @@ void menu::run()
 			if (this->current_option == 0)
 			{
 				char buf[16] = {0};
-				mvwprintw(this->content_window, 11, 2, "Enter number of channels: ");
+				mvwprintw(this->content_window, 12, 2, "Enter number of channels: ");
 				wrefresh(this->content_window);
 				curs_set(1);
 				echo();
@@ -187,6 +187,31 @@ void menu::run()
 				break;
 			}
 			break;
+
+		case '2':
+			if (this->current_option == 0)
+			{
+				char buf[16] = {0};
+				mvwprintw(this->content_window, 11, 2, "[suggested: 44100 Hz, 48000 Hz, 96000 Hz]");
+				mvwprintw(this->content_window, 12, 2, "Enter sample rate (Hz): ");
+				wrefresh(this->content_window);
+				curs_set(1);
+				echo();
+				wgetnstr(this->content_window, buf, 10);
+				noecho();
+				curs_set(0);
+				int val = atoi(buf);
+				if (val > 0 && val <= 384000)
+				{
+					this->recorder.sampleRate = (unsigned int)val;
+				}
+				else
+				{
+					mvwprintw(this->content_window, 11, 2, "Invalid sample rate");
+				}
+			}
+		break;
+
 		case KEY_LEFT:
 		case 'a':
 			if (this->current_option > 0)
