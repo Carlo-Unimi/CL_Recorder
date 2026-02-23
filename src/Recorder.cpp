@@ -1,1 +1,222 @@
+#include <sys/stat.h>
+
 #include "../include/Recorder.h"
+
+Recorder::Recorder() : recording(false), handle(nullptr), channels(0) {}
+
+Recorder::~Recorder()
+{
+  if (isRecording())
+  {
+    stop();
+  }
+}
+
+bool Recorder::start(const std::string &devName, unsigned int numChannels)
+{
+  if (recording)
+  {
+    std::cerr << "Recording is already in progress." << std::endl;
+    return false;
+  }
+
+  deviceName = devName;
+  channels = numChannels;
+
+  // Create directory
+  const char *homeDir = getenv("HOME");
+  if (homeDir == nullptr)
+  {
+    std::cerr << "Unable to get home directory." << std::endl;
+    return false;
+  }
+  std::string dirPath = std::string(homeDir) + "/Music/recordings";
+  if (mkdir(dirPath.c_str(), 0777) == -1)
+  {
+    if (errno != EEXIST)
+    {
+      std::cerr << "Error creating directory: " << strerror(errno) << std::endl;
+      return false;
+    }
+  }
+
+  recording = true;
+  recordingThread = std::thread(&Recorder::record, this);
+  return true;
+}
+
+void Recorder::stop()
+{
+  if (recording)
+  {
+    recording = false;
+    if (recordingThread.joinable())
+    {
+      recordingThread.join();
+    }
+  }
+}
+
+bool Recorder::isRecording() const
+{
+  return recording;
+}
+
+void Recorder::record()
+{
+  int err;
+  snd_pcm_hw_params_t *hw_params;
+
+  if ((err = snd_pcm_open(&handle, deviceName.c_str(), SND_PCM_STREAM_CAPTURE, 0)) < 0)
+  {
+    std::cerr << "Cannot open audio device " << deviceName << ": " << snd_strerror(err) << std::endl;
+    recording = false;
+    return;
+  }
+
+  if ((err = snd_pcm_hw_params_malloc(&hw_params)) < 0)
+  {
+    std::cerr << "Cannot allocate hardware parameter structure: " << snd_strerror(err) << std::endl;
+    recording = false;
+    return;
+  }
+
+  if ((err = snd_pcm_hw_params_any(handle, hw_params)) < 0)
+  {
+    std::cerr << "Cannot initialize hardware parameter structure: " << snd_strerror(err) << std::endl;
+    snd_pcm_hw_params_free(hw_params);
+    recording = false;
+    return;
+  }
+
+  if ((err = snd_pcm_hw_params_set_access(handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED)) < 0)
+  {
+    std::cerr << "Cannot set access type: " << snd_strerror(err) << std::endl;
+    snd_pcm_hw_params_free(hw_params);
+    recording = false;
+    return;
+  }
+
+  if ((err = snd_pcm_hw_params_set_format(handle, hw_params, format)) < 0)
+  {
+    std::cerr << "Cannot set sample format: " << snd_strerror(err) << std::endl;
+    snd_pcm_hw_params_free(hw_params);
+    recording = false;
+    return;
+  }
+
+  if ((err = snd_pcm_hw_params_set_rate_near(handle, hw_params, &sampleRate, 0)) < 0)
+  {
+    std::cerr << "Cannot set sample rate: " << snd_strerror(err) << std::endl;
+    snd_pcm_hw_params_free(hw_params);
+    recording = false;
+    return;
+  }
+
+  if ((err = snd_pcm_hw_params_set_channels(handle, hw_params, channels)) < 0)
+  {
+    std::cerr << "Cannot set channel count: " << snd_strerror(err) << std::endl;
+    snd_pcm_hw_params_free(hw_params);
+    recording = false;
+    return;
+  }
+
+  if ((err = snd_pcm_hw_params(handle, hw_params)) < 0)
+  {
+    std::cerr << "Cannot set parameters: " << snd_strerror(err) << std::endl;
+    snd_pcm_hw_params_free(hw_params);
+    recording = false;
+    return;
+  }
+
+  snd_pcm_hw_params_free(hw_params);
+
+  if ((err = snd_pcm_prepare(handle)) < 0)
+  {
+    std::cerr << "Cannot prepare audio interface for use: " << snd_strerror(err) << std::endl;
+    recording = false;
+    return;
+  }
+
+  const char *homeDir = getenv("HOME");
+  std::string dirPath = std::string(homeDir) + "/Music/recordings/";
+
+  std::vector<std::ofstream> outFiles;
+  std::vector<std::vector<char>> pcm_data_buffers(channels);
+
+  for (unsigned int i = 0; i < channels; ++i)
+  {
+    std::string filePath = dirPath + "record_channel_" + std::to_string(i) + ".wav";
+    outFiles.emplace_back(filePath, std::ios::binary);
+    writeWavHeader(outFiles[i], 0, 1, sampleRate, 16);
+  }
+
+  int buffer_frames = 128;
+  int frame_size = channels * snd_pcm_format_width(format) / 8;
+  std::vector<char> buffer(buffer_frames * frame_size);
+
+  while (recording)
+  {
+    if ((err = snd_pcm_readi(handle, buffer.data(), buffer_frames)) != buffer_frames)
+    {
+      if (err < 0)
+      {
+        std::cerr << "Read from audio interface failed: " << snd_strerror(err) << std::endl;
+      }
+      else if (err != buffer_frames)
+      {
+        std::cerr << "Short read from audio interface, frames = " << err << "/" << buffer_frames << std::endl;
+      }
+      continue;
+    }
+
+    for (int i = 0; i < buffer_frames; ++i)
+    {
+      for (unsigned int ch = 0; ch < channels; ++ch)
+      {
+        char *sample_ptr = buffer.data() + i * frame_size + ch * (snd_pcm_format_width(format) / 8);
+        pcm_data_buffers[ch].insert(pcm_data_buffers[ch].end(), sample_ptr, sample_ptr + 2);
+      }
+    }
+  }
+
+  snd_pcm_close(handle);
+  handle = nullptr;
+
+  for (unsigned int i = 0; i < channels; ++i)
+  {
+    int pcm_size = pcm_data_buffers[i].size();
+    outFiles[i].seekp(0, std::ios::beg);
+    writeWavHeader(outFiles[i], pcm_size, 1, sampleRate, 16);
+    outFiles[i].write(pcm_data_buffers[i].data(), pcm_size);
+    outFiles[i].close();
+  }
+}
+
+void Recorder::writeWavHeader(std::ofstream &file, int pcmDataSize, int numChannels, int sampleRate, int bitsPerSample)
+{
+  int byteRate = sampleRate * numChannels * bitsPerSample / 8;
+  int blockAlign = numChannels * bitsPerSample / 8;
+  int chunkSize = 36 + pcmDataSize;
+
+  // RIFF chunk descriptor
+  file.write("RIFF", 4);
+  file.write(reinterpret_cast<const char *>(&chunkSize), 4);
+  file.write("WAVE", 4);
+
+  // "fmt" sub-chunk
+  file.write("fmt ", 4);
+  int subchunk1Size = 16;
+  file.write(reinterpret_cast<const char *>(&subchunk1Size), 4);
+  short audioFormat = 1; // PCM
+  file.write(reinterpret_cast<const char *>(&audioFormat), 2);
+  file.write(reinterpret_cast<const char *>(&numChannels), 2);
+  file.write(reinterpret_cast<const char *>(&sampleRate), 4);
+  file.write(reinterpret_cast<const char *>(&byteRate), 4);
+  file.write(reinterpret_cast<const char *>(&blockAlign), 2);
+  file.write(reinterpret_cast<const char *>(&bitsPerSample), 2);
+
+  // "data" sub-chunk
+  file.write("data", 4);
+  file.write(reinterpret_cast<const char *>(&pcmDataSize), 4);
+}
