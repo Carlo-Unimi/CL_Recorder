@@ -55,10 +55,8 @@ void menu::drawContentWindow()
 		mvwprintw(this->content_window, 5, 2, "Format:       [16-bit PCM]");
 		mvwprintw(this->content_window, 6, 2, "");
 		mvwprintw(this->content_window, 7, 2, "Select option:");
-		mvwprintw(this->content_window, 8, 2, "[1] Change Channels  [2] Change Sample Rate");
-
-
-
+		mvwprintw(this->content_window, 8, 2, "[1] Change number of Channels ");
+		mvwprintw(this->content_window, 9, 2, "[2] Change Sample Rate");
 
 		printContent();
 		break;
@@ -166,6 +164,29 @@ void menu::run()
 		int ch = wgetch(this->window);
 		switch (ch)
 		{
+		case '1':
+			if (this->current_option == 0)
+			{
+				char buf[16] = {0};
+				mvwprintw(this->content_window, 11, 2, "Enter number of channels: ");
+				wrefresh(this->content_window);
+				curs_set(1);
+				echo();
+				wgetnstr(this->content_window, buf, 6);
+				noecho();
+				curs_set(0);
+				int val = atoi(buf);
+				if (val > 0 && val <= 32)
+				{
+					this->recorder.numChannels = (unsigned int)val;
+				}
+				else
+				{
+					mvwprintw(this->content_window, 11, 2, "Invalid channel number");
+				}
+				break;
+			}
+			break;
 		case KEY_LEFT:
 		case 'a':
 			if (this->current_option > 0)

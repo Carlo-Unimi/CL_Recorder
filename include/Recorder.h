@@ -29,7 +29,7 @@ private:
 
 public:
   unsigned int sampleRate = 44100;
-  unsigned int numChannels;
+  unsigned int numChannels = 2;
 
   /**
    * @brief constructs a Recorder object.
