@@ -1,6 +1,48 @@
 #include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
 
 #include "../include/Recorder.h"
+
+static bool ensure_directory(const std::string &path)
+{
+  if (path.empty())
+    return false;
+
+  // if exists and is dir -> ok
+  struct stat st;
+  if (stat(path.c_str(), &st) == 0)
+  {
+    return S_ISDIR(st.st_mode);
+  }
+
+  // create directories recursively
+  std::string cur;
+  if (path[0] == '/')
+    cur = "/";
+
+  size_t pos = 0;
+  while (pos < path.size())
+  {
+    size_t next = path.find_first_of('/', pos);
+    if (next == std::string::npos)
+      next = path.size();
+    std::string part = path.substr(pos, next - pos);
+    if (!part.empty())
+    {
+      if (cur.size() && cur.back() != '/')
+        cur += '/';
+      cur += part;
+      if (stat(cur.c_str(), &st) != 0)
+      {
+        if (mkdir(cur.c_str(), 0777) != 0 && errno != EEXIST)
+          return false;
+      }
+    }
+    pos = next + 1;
+  }
+  return true;
+}
 
 Recorder::Recorder() : recording(false), handle(nullptr), channels(0) {}
 
@@ -12,7 +54,7 @@ Recorder::~Recorder()
   }
 }
 
-bool Recorder::start(const std::string &devName, unsigned int numChannels)
+bool Recorder::start(const std::string &devName, unsigned int numChannels, const std::string &path)
 {
   if (recording)
   {
@@ -23,21 +65,30 @@ bool Recorder::start(const std::string &devName, unsigned int numChannels)
   deviceName = devName;
   channels = numChannels;
 
-  // Create directory
-  const char *homeDir = getenv("HOME");
-  if (homeDir == nullptr)
+  // determine save path
+  if (!path.empty())
   {
-    std::cerr << "Unable to get home directory." << std::endl;
-    return false;
+    savePath = path;
   }
-  std::string dirPath = std::string(homeDir) + "/Music/recordings";
-  if (mkdir(dirPath.c_str(), 0777) == -1)
+  else
   {
-    if (errno != EEXIST)
+    const char *homeDir = getenv("HOME");
+    if (homeDir == nullptr)
     {
-      std::cerr << "Error creating directory: " << strerror(errno) << std::endl;
+      std::cerr << "Unable to get home directory." << std::endl;
       return false;
     }
+    savePath = std::string(homeDir) + "/Music/recordings";
+  }
+
+  // normalize: remove trailing slash
+  if (!savePath.empty() && savePath.back() == '/')
+    savePath.pop_back();
+
+  if (!ensure_directory(savePath))
+  {
+    std::cerr << "Error creating/ensuring directory: " << savePath << std::endl;
+    return false;
   }
 
   recording = true;
@@ -138,8 +189,7 @@ void Recorder::record()
     return;
   }
 
-  const char *homeDir = getenv("HOME");
-  std::string dirPath = std::string(homeDir) + "/Music/recordings/";
+  std::string dirPath = savePath + "/";
 
   std::vector<std::ofstream> outFiles;
   std::vector<std::vector<char>> pcm_data_buffers(channels);

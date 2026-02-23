@@ -23,6 +23,7 @@ private:
   std::string deviceName;
   unsigned int sampleRate = 44100;
   unsigned int channels;
+  std::string savePath;
   snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
 
   void record();
@@ -43,9 +44,10 @@ public:
    * @brief starts the recording process in a separate thread.
    * @param deviceName the ALSA device name (e.g., "default").
    * @param numChannels the number of channels to record.
+   * @param path directory where wav files will be stored (if empty, default is ~/Music/recordings).
    * @return true if recording started successfully, false otherwise.
    */
-  bool start(const std::string &deviceName, unsigned int numChannels);
+  bool start(const std::string &deviceName, unsigned int numChannels, const std::string &path);
 
   /**
    * @brief stops the current recording session and saves the file.

@@ -80,7 +80,7 @@ void menu::drawContentWindow()
 		{
 			this->content[4].content = {"START RECORDING option selected.", "", "Press Enter to start recording."};
 		}
-		else if (this->options[this->current_option] == "STOP RECORDING ")
+		else if (this->options[this->current_option] == "STOP RECORDING")
 		{
 			this->content[4].content = {"RECORDING IN PROGRESS...", "", "Press Enter to stop recording."};
 		}
@@ -237,7 +237,7 @@ void menu::run()
 				}
 				if (!selectedDevice.empty())
 				{
-					if (recorder.start(selectedDevice, 2))
+					if (recorder.start(selectedDevice, 2, std::string(this->path)))
 					{
 						this->options[this->current_option] = "STOP RECORDING ";
 						this->content[this->current_option].content = {"RECORDING IN PROGRESS...", "", "Press Enter to stop recording."};
