@@ -21,8 +21,6 @@ private:
   std::thread recordingThread;
   snd_pcm_t *handle;
   std::string deviceName;
-  unsigned int sampleRate = 44100;
-  unsigned int channels;
   std::string savePath;
   snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
 
@@ -30,6 +28,9 @@ private:
   void writeWavHeader(std::ofstream &file, int pcmDataSize, int numChannels, int sampleRate, int bitsPerSample);
 
 public:
+  unsigned int sampleRate = 44100;
+  unsigned int numChannels;
+
   /**
    * @brief constructs a Recorder object.
    */
@@ -47,7 +48,7 @@ public:
    * @param path directory where wav files will be stored (if empty, default is ~/Music/recordings).
    * @return true if recording started successfully, false otherwise.
    */
-  bool start(const std::string &deviceName, unsigned int numChannels, const std::string &path);
+  bool start(const std::string &deviceName, const std::string &path);
 
   /**
    * @brief stops the current recording session and saves the file.

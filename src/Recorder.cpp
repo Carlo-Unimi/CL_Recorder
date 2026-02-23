@@ -44,7 +44,7 @@ static bool ensure_directory(const std::string &path)
   return true;
 }
 
-Recorder::Recorder() : recording(false), handle(nullptr), channels(0) {}
+Recorder::Recorder() : recording(false), handle(nullptr), numChannels(0) {}
 
 Recorder::~Recorder()
 {
@@ -54,7 +54,7 @@ Recorder::~Recorder()
   }
 }
 
-bool Recorder::start(const std::string &devName, unsigned int numChannels, const std::string &path)
+bool Recorder::start(const std::string &devName, const std::string &path)
 {
   if (recording)
   {
@@ -63,7 +63,6 @@ bool Recorder::start(const std::string &devName, unsigned int numChannels, const
   }
 
   deviceName = devName;
-  channels = numChannels;
 
   // determine save path
   if (!path.empty())
@@ -164,7 +163,7 @@ void Recorder::record()
     return;
   }
 
-  if ((err = snd_pcm_hw_params_set_channels(handle, hw_params, channels)) < 0)
+  if ((err = snd_pcm_hw_params_set_channels(handle, hw_params, numChannels)) < 0)
   {
     std::cerr << "Cannot set channel count: " << snd_strerror(err) << std::endl;
     snd_pcm_hw_params_free(hw_params);
@@ -192,9 +191,9 @@ void Recorder::record()
   std::string dirPath = savePath + "/";
 
   std::vector<std::ofstream> outFiles;
-  std::vector<std::vector<char>> pcm_data_buffers(channels);
+  std::vector<std::vector<char>> pcm_data_buffers(numChannels);
 
-  for (unsigned int i = 0; i < channels; ++i)
+  for (unsigned int i = 0; i < numChannels; ++i)
   {
     std::string filePath = dirPath + "channel_" + std::to_string(i) + ".wav";
     outFiles.emplace_back(filePath, std::ios::binary);
@@ -202,7 +201,7 @@ void Recorder::record()
   }
 
   int buffer_frames = 128;
-  int frame_size = channels * snd_pcm_format_width(format) / 8;
+  int frame_size = numChannels * snd_pcm_format_width(format) / 8;
   std::vector<char> buffer(buffer_frames * frame_size);
 
   while (recording)
@@ -222,7 +221,7 @@ void Recorder::record()
 
     for (int i = 0; i < buffer_frames; ++i)
     {
-      for (unsigned int ch = 0; ch < channels; ++ch)
+      for (unsigned int ch = 0; ch < numChannels; ++ch)
       {
         char *sample_ptr = buffer.data() + i * frame_size + ch * (snd_pcm_format_width(format) / 8);
         pcm_data_buffers[ch].insert(pcm_data_buffers[ch].end(), sample_ptr, sample_ptr + 2);
@@ -233,7 +232,7 @@ void Recorder::record()
   snd_pcm_close(handle);
   handle = nullptr;
 
-  for (unsigned int i = 0; i < channels; ++i)
+  for (unsigned int i = 0; i < numChannels; ++i)
   {
     int pcm_size = pcm_data_buffers[i].size();
     outFiles[i].seekp(0, std::ios::beg);

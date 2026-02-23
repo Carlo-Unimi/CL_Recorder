@@ -49,6 +49,17 @@ void menu::drawContentWindow()
 	{
 	case 0:
 		this->content[0].content = {"Configure your recording settings here:"};
+
+		mvwprintw(this->content_window, 3, 2, "Sample Rate:  [%d Hz]", this->recorder.sampleRate);
+		mvwprintw(this->content_window, 4, 2, "Channels:     [%d]", this->recorder.numChannels);
+		mvwprintw(this->content_window, 5, 2, "Format:       [16-bit PCM]");
+		mvwprintw(this->content_window, 6, 2, "");
+		mvwprintw(this->content_window, 7, 2, "Select option:");
+		mvwprintw(this->content_window, 8, 2, "[1] Change Channels  [2] Change Sample Rate");
+
+
+
+
 		printContent();
 		break;
 	case 1:
@@ -237,7 +248,7 @@ void menu::run()
 				}
 				if (!selectedDevice.empty())
 				{
-					if (recorder.start(selectedDevice, 2, std::string(this->path))) // NUMCHANNELS HARDCODED TO 2
+					if (recorder.start(selectedDevice, std::string(this->path)))
 					{
 						this->options[this->current_option] = "STOP RECORDING ";
 						this->content[this->current_option].content = {"RECORDING IN PROGRESS...", "", "Press Enter to stop recording."};
