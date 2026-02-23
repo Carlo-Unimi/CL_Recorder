@@ -237,7 +237,7 @@ void menu::run()
 				}
 				if (!selectedDevice.empty())
 				{
-					if (recorder.start(selectedDevice, 2, std::string(this->path)))
+					if (recorder.start(selectedDevice, 2, std::string(this->path))) // NUMCHANNELS HARDCODED TO 2
 					{
 						this->options[this->current_option] = "STOP RECORDING ";
 						this->content[this->current_option].content = {"RECORDING IN PROGRESS...", "", "Press Enter to stop recording."};
