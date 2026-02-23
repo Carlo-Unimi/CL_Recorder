@@ -196,7 +196,7 @@ void Recorder::record()
 
   for (unsigned int i = 0; i < channels; ++i)
   {
-    std::string filePath = dirPath + "record_channel_" + std::to_string(i) + ".wav";
+    std::string filePath = dirPath + "channel_" + std::to_string(i) + ".wav";
     outFiles.emplace_back(filePath, std::ios::binary);
     writeWavHeader(outFiles[i], 0, 1, sampleRate, 16);
   }
