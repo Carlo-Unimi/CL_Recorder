@@ -217,6 +217,32 @@ void menu::run()
 				curs_set(0);
 				this->content[2].content.push_back("path set to: " + std::string(this->path));
 			}
+			else if (this->options[this->current_option] == "START RECORDING")
+			{
+				std::string selectedDevice;
+				for (const auto &dev : devices)
+				{
+					if (dev.selected)
+					{
+						selectedDevice = dev.name;
+						break;
+					}
+				}
+				if (!selectedDevice.empty())
+				{
+					if (recorder.start(selectedDevice, 2))
+					{
+						this->options[this->current_option] = "STOP RECORDING ";
+						this->content[this->current_option].content = {"RECORDING IN PROGRESS...", "", "Press Enter to stop recording."};
+					}
+				}
+			}
+			else if (this->options[this->current_option] == "STOP RECORDING ")
+			{
+				recorder.stop();
+				this->options[this->current_option] = "START RECORDING";
+				this->content[this->current_option].content = {"START RECORDING option selected.", "", "Press Enter to start recording."};
+			}
 			break;
 		}
 	}
