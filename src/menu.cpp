@@ -76,7 +76,14 @@ void menu::drawContentWindow()
 		printContent();
 		break;
 	case 4:
-		this->content[4].content = {"START RECORDING option selected.", "", "Press Enter to start recording."};
+		if (this->options[this->current_option] == "START RECORDING")
+		{
+			this->content[4].content = {"START RECORDING option selected.", "", "Press Enter to start recording."};
+		}
+		else if (this->options[this->current_option] == "STOP RECORDING ")
+		{
+			this->content[4].content = {"RECORDING IN PROGRESS...", "", "Press Enter to stop recording."};
+		}
 		printContent();
 		break;
 	default:
