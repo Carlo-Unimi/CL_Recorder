@@ -47,6 +47,7 @@ void menu::drawContentWindow()
 	int sel, maxLen;
 	switch (this->current_option)
 	{
+	//* recording settings
 	case 0:
 		this->content[0].content = {"Configure your recording settings here:"};
 
@@ -60,6 +61,8 @@ void menu::drawContentWindow()
 
 		printContent();
 		break;
+	
+	//* device selection
 	case 1:
 		this->content[1].content = {"Select an input device from the available options:", "", "[use arrow keys to select]"};
 		printContent();
@@ -73,6 +76,8 @@ void menu::drawContentWindow()
 				mvwprintw(this->content_window, 5 + i, maxLen + 7, "X");
 		}
 		break;
+
+	//* file path input
 	case 2:
 		this->content[2].content = {"Specify file paths for saving recordings:", "[default: ~/recordings/]", "", "press enter to modify"};
 		printContent();
@@ -80,10 +85,14 @@ void menu::drawContentWindow()
 		if (path[0] != '\0')
 			mvwprintw(this->content_window, getmaxy(this->content_window) - 2, 2, "Current path: %s", this->path);
 		break;
+
+	//* exit option
 	case 3:
 		this->content[3].content = {"Exit option selected.", "", "Press Enter to exit the program."};
 		printContent();
 		break;
+
+	//* recording option
 	case 4:
 		if (this->options[this->current_option] == "START RECORDING")
 		{
@@ -282,6 +291,8 @@ void menu::run()
 			if (this->options[this->current_option] == "Exit")
 			{
 				running = false;
+				if (recorder.isRecording()) // if recording is in progress, stop it before exiting
+					recorder.stop();
 			}
 			else if (this->current_option == 2)
 			{
