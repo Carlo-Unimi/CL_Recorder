@@ -50,8 +50,8 @@ void menu::drawContentWindow()
 	case 0:
 		this->content[0].content = {"Configure your recording settings here:"};
 
-		mvwprintw(this->content_window, 3, 2, "Sample Rate:  [%d Hz]", this->recorder.sampleRate);
-		mvwprintw(this->content_window, 4, 2, "Channels:     [%d]", this->recorder.numChannels);
+		mvwprintw(this->content_window, 3, 2, "Channels:     [%d]", this->recorder.numChannels);
+		mvwprintw(this->content_window, 4, 2, "Sample Rate:  [%d Hz]", this->recorder.sampleRate);
 		mvwprintw(this->content_window, 5, 2, "Format:       [16-bit PCM]");
 		mvwprintw(this->content_window, 6, 2, "");
 		mvwprintw(this->content_window, 7, 2, "Select option:");
@@ -278,7 +278,7 @@ void menu::run()
 			break;
 		
 		//* select option (enter key)
-		case 10: // enter key
+		case 10:
 			if (this->options[this->current_option] == "Exit")
 			{
 				running = false;
