@@ -22,15 +22,15 @@ void vu_window::initColors()
   }
 }
 
-void vu_window::drawVUMeters(WINDOW *win, const std::vector<float> &levels, int startY, int startX)
+void vu_window::drawVUMeters(WINDOW *win, const std::vector<float> &levels, int endY)
 {
   initColors();
 
   const int barWidth = 20; // width of VU meter bar
 
-  for (size_t ch = 0; ch < levels.size(); ++ch)
+  for (size_t ch = 0; ch < levels.size() && 7 + ch < endY; ++ch)
   {
-    int y = startY + ch;
+    int y = 7 + ch;
     float level = levels[ch];
 
     if (level < 0.0f)
@@ -42,8 +42,8 @@ void vu_window::drawVUMeters(WINDOW *win, const std::vector<float> &levels, int 
     int filledBlocks = static_cast<int>(level * barWidth);
 
     // channel label
-    mvwprintw(win, y, startX, "CH%02zu ", ch + 1);
-    mvwprintw(win, y, startX + 5, "[");
+    mvwprintw(win, y, 2, "CH%02zu ", ch + 1);
+    mvwprintw(win, y, 10, "[");
 
     // draw meter bar
     for (int i = 0; i < barWidth; ++i)
@@ -58,19 +58,19 @@ void vu_window::drawVUMeters(WINDOW *win, const std::vector<float> &levels, int 
           colorPair = 3;
 
         wattron(win, COLOR_PAIR(colorPair) | A_BOLD);
-        mvwprintw(win, y, startX + 6 + i, "=");
+        mvwprintw(win, y, 8 + i, "=");
         wattroff(win, COLOR_PAIR(colorPair) | A_BOLD);
       }
       else
       {
-        mvwprintw(win, y, startX + 6 + i, " ");
+        mvwprintw(win, y, 8 + i, " ");
       }
     }
 
-    mvwprintw(win, y, startX + 6 + barWidth, "]");
+    mvwprintw(win, y, 8 + barWidth, "]");
 
     // draw percentage text
     int percentage = static_cast<int>(level * 100);
-    mvwprintw(win, y, startX + 8 + barWidth, "%3d%%", percentage);
+    mvwprintw(win, y, 10 + barWidth, "%3d%%", percentage);
   }
 }

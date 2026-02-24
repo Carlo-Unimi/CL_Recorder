@@ -26,7 +26,7 @@ public:
    * @param startY starting row position in the window.
    * @param startX starting column position in the window.
    */
-  static void drawVUMeters(WINDOW *win, const std::vector<float> &levels, int startY, int startX);
+  static void drawVUMeters(WINDOW *win, const std::vector<float> &levels, int endY);
 };
 
 #endif

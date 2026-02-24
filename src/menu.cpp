@@ -108,7 +108,7 @@ void menu::drawContentWindow()
 				std::vector<float> levels = this->recorder.getChannelLevels();
 				if (!levels.empty())
 				{
-					vu_window::drawVUMeters(this->content_window, levels, 7, 2);
+					vu_window::drawVUMeters(this->content_window, levels, getmaxy(this->content_window) - 2);
 				}
 			}
 		}
