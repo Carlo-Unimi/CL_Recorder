@@ -16,7 +16,9 @@ bool parseArguments(int argc, char* argv[], int &channels, int &sampleRate)
     std::cout << "Usage: " << argv[0] << " [numChannels] [sampleRate]\n" << std::endl;
     std::cout << "  numChannels: Number of audio channels to record (default: 2)" << std::endl;
     std::cout << "  sampleRate: Sample rate for recording in Hz (default: 44100)\n" << std::endl;
-    std::cout << "  --help     Show this help message" << std::endl;
+    std::cout << "  --help     Show this help message\n\n" << std::endl;
+
+    std::cout << "  number of channels must be between 1 and 32.\n  sample rate must be between 4000 and 384000 Hz.\n" << std::endl;
     return true;
   }
 
