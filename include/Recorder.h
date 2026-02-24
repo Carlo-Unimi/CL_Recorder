@@ -34,12 +34,12 @@ private:
 
 public:
   unsigned int sampleRate = 44100;
-  unsigned int numChannels = 0;
+  unsigned int numChannels = 2;
 
   /**
    * @brief constructs a Recorder object.
    */
-  Recorder();
+  Recorder(int channels, int sampleRate);
 
   /**
    * @brief destructs the Recorder object, ensuring any ongoing recording is stopped.
@@ -49,7 +49,6 @@ public:
   /**
    * @brief starts the recording process in a separate thread.
    * @param deviceName the ALSA device name (e.g., "default").
-   * @param numChannels the number of channels to record.
    * @param path directory where wav files will be stored (if empty, default is ~/Music/recordings).
    * @return true if recording started successfully, false otherwise.
    */

@@ -139,8 +139,9 @@ void menu::draw_options()
 	this->draw_option_line(4);
 }
 
-menu::menu(std::vector<std::string> title, std::vector<std::string> options) : title(title), options(options)
+menu::menu(std::vector<std::string> title, std::vector<std::string> options, int channels, int sampleRate) : title(title), options(options), recorder(channels, sampleRate)
 {
+	
 	this->content.resize(options.size());
 	int max_y = getmaxy(stdscr);
 	int max_x = getmaxx(stdscr);
@@ -182,13 +183,9 @@ void menu::run()
 
 		// set 5 updates per seocond when recording for VU meter refresh
 		if (this->recorder.isRecording() && this->current_option == 4)
-		{
 			wtimeout(this->window, 200);
-		}
 		else
-		{
 			wtimeout(this->window, -1);
-		}
 
 		int ch = wgetch(this->window);
 
@@ -215,10 +212,6 @@ void menu::run()
 				if (val > 0 && val <= 32)
 				{
 					this->recorder.numChannels = (unsigned int)val;
-				}
-				else
-				{
-					mvwprintw(this->content_window, 11, 2, "Invalid channel number");
 				}
 				break;
 			}

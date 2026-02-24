@@ -44,7 +44,11 @@ static bool ensure_directory(const std::string &path)
   return true;
 }
 
-Recorder::Recorder() : recording(false), handle(nullptr), numChannels(0) {}
+Recorder::Recorder(int channels, int sampleRate) : recording(false), handle(nullptr) {
+  numChannels = channels;
+  format = SND_PCM_FORMAT_S16_LE;
+  this->sampleRate = sampleRate;
+}
 
 Recorder::~Recorder()
 {
