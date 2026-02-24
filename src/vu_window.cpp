@@ -43,7 +43,7 @@ void vu_window::drawVUMeters(WINDOW *win, const std::vector<float> &levels, int 
 
     // channel label
     mvwprintw(win, y, 2, "CH%02zu ", ch + 1);
-    mvwprintw(win, y, 10, "[");
+    mvwprintw(win, y, 7, "[");
 
     // draw meter bar
     for (int i = 0; i < barWidth; ++i)
