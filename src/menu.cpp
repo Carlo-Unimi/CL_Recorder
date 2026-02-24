@@ -164,6 +164,8 @@ void menu::run()
 		int ch = wgetch(this->window);
 		switch (ch)
 		{
+
+		//* modify number of channels that are being recorded (1-32)
 		case '1':
 			if (this->current_option == 0)
 			{
@@ -187,7 +189,8 @@ void menu::run()
 				break;
 			}
 			break;
-
+		
+		//* modify sample rate (4000 < sR < 384000)
 		case '2':
 			if (this->current_option == 0)
 			{
@@ -211,7 +214,8 @@ void menu::run()
 				}
 			}
 		break;
-
+		
+		//* navigate left - options (left arrow - 'a')
 		case KEY_LEFT:
 		case 'a':
 			if (this->current_option > 0)
@@ -219,6 +223,8 @@ void menu::run()
 			else
 				this->current_option = this->options.size() - 1;
 			break;
+
+		//* navigate right - options (right arrow - 'd')
 		case KEY_RIGHT:
 		case 'd':
 			if (this->current_option < (int)this->options.size() - 1)
@@ -226,6 +232,8 @@ void menu::run()
 			else
 				this->current_option = 0;
 			break;
+		
+		//* navigate up - devices (up arrow - 'w')
 		case KEY_UP:
 		case 'w':
 			if (this->current_option == 1 && !this->devices.empty())
@@ -246,6 +254,8 @@ void menu::run()
 				this->devices[sel].selected = true;
 			}
 			break;
+		
+		//* navigate down - devices (down arrow - 's')
 		case KEY_DOWN:
 		case 's':
 			if (this->current_option == 1 && !this->devices.empty())
@@ -266,6 +276,8 @@ void menu::run()
 				this->devices[sel].selected = true;
 			}
 			break;
+		
+		//* select option (enter key)
 		case 10: // enter key
 			if (this->options[this->current_option] == "Exit")
 			{
