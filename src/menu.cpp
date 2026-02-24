@@ -61,7 +61,7 @@ void menu::drawContentWindow()
 
 		printContent();
 		break;
-	
+
 	//* device selection
 	case 1:
 		this->content[1].content = {"Select an input device from the available options:", "", "[use arrow keys to select]"};
@@ -98,9 +98,19 @@ void menu::drawContentWindow()
 		{
 			this->content[4].content = {"START RECORDING option selected.", "", "Press Enter to start recording."};
 		}
-		else if (this->options[this->current_option] == "STOP RECORDING")
+		else if (this->options[this->current_option] == "STOP RECORDING ")
 		{
-			this->content[4].content = {"RECORDING IN PROGRESS...", "", "Press Enter to stop recording."};
+			this->content[4].content = {"RECORDING IN PROGRESS...", "", "Press Enter to stop recording.", "", "VU Meters:"};
+
+			// draw VU meters if recording
+			if (this->recorder.isRecording())
+			{
+				std::vector<float> levels = this->recorder.getChannelLevels();
+				if (!levels.empty())
+				{
+					vu_window::drawVUMeters(this->content_window, levels, 7, 2);
+				}
+			}
 		}
 		printContent();
 		break;
@@ -170,7 +180,22 @@ void menu::run()
 		this->drawContentWindow();
 		this->display();
 
+		// set 5 updates per seocond when recording for VU meter refresh
+		if (this->recorder.isRecording() && this->current_option == 4)
+		{
+			wtimeout(this->window, 200);
+		}
+		else
+		{
+			wtimeout(this->window, -1);
+		}
+
 		int ch = wgetch(this->window);
+
+		// if no key pressed, continue to refresh
+		if (ch == ERR)
+			continue;
+
 		switch (ch)
 		{
 
@@ -198,7 +223,7 @@ void menu::run()
 				break;
 			}
 			break;
-		
+
 		//* modify sample rate (4000 < sR < 384000)
 		case '2':
 			if (this->current_option == 0)
@@ -222,8 +247,8 @@ void menu::run()
 					mvwprintw(this->content_window, 11, 2, "Invalid sample rate");
 				}
 			}
-		break;
-		
+			break;
+
 		//* navigate left - options (left arrow - 'a')
 		case KEY_LEFT:
 		case 'a':
@@ -241,7 +266,7 @@ void menu::run()
 			else
 				this->current_option = 0;
 			break;
-		
+
 		//* navigate up - devices (up arrow - 'w')
 		case KEY_UP:
 		case 'w':
@@ -263,7 +288,7 @@ void menu::run()
 				this->devices[sel].selected = true;
 			}
 			break;
-		
+
 		//* navigate down - devices (down arrow - 's')
 		case KEY_DOWN:
 		case 's':
@@ -285,7 +310,7 @@ void menu::run()
 				this->devices[sel].selected = true;
 			}
 			break;
-		
+
 		//* select option (enter key)
 		case 10:
 			if (this->options[this->current_option] == "Exit")

@@ -8,6 +8,8 @@
 #include <atomic>
 #include <fstream>
 #include <vector>
+#include <mutex>
+#include <cmath>
 #include <alsa/asoundlib.h>
 
 /**
@@ -24,12 +26,15 @@ private:
   std::string savePath;
   snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
 
+  std::vector<float> channelLevels; // normalized RMS levels (0.0 - 1.0) per channel
+  mutable std::mutex levelsMutex;
+
   void record();
   void writeWavHeader(std::ofstream &file, int pcmDataSize, int numChannels, int sampleRate, int bitsPerSample);
 
 public:
   unsigned int sampleRate = 44100;
-  unsigned int numChannels = 2;
+  unsigned int numChannels = 0;
 
   /**
    * @brief constructs a Recorder object.
@@ -59,6 +64,12 @@ public:
    * @brief checks if a recording is currently in progress.
    */
   bool isRecording() const;
+
+  /**
+   * @brief gets the current audio levels for all channels.
+   * @return vector of normalized RMS levels (0.0 - 1.0) for each channel.
+   */
+  std::vector<float> getChannelLevels() const;
 };
 
 #endif

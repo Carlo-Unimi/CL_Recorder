@@ -112,6 +112,12 @@ bool Recorder::isRecording() const
   return recording;
 }
 
+std::vector<float> Recorder::getChannelLevels() const
+{
+  std::lock_guard<std::mutex> lock(levelsMutex);
+  return channelLevels;
+}
+
 void Recorder::record()
 {
   int err;
@@ -204,6 +210,12 @@ void Recorder::record()
   int frame_size = numChannels * snd_pcm_format_width(format) / 8;
   std::vector<char> buffer(buffer_frames * frame_size);
 
+  // Initialize channel levels
+  {
+    std::lock_guard<std::mutex> lock(levelsMutex);
+    channelLevels.resize(numChannels, 0.0f);
+  }
+
   while (recording)
   {
     if ((err = snd_pcm_readi(handle, buffer.data(), buffer_frames)) != buffer_frames)
@@ -226,6 +238,26 @@ void Recorder::record()
         char *sample_ptr = buffer.data() + i * frame_size + ch * (snd_pcm_format_width(format) / 8);
         pcm_data_buffers[ch].insert(pcm_data_buffers[ch].end(), sample_ptr, sample_ptr + 2);
       }
+    }
+
+    // Calculate RMS levels for each channel
+    std::vector<float> rmsLevels(numChannels, 0.0f);
+    for (unsigned int ch = 0; ch < numChannels; ++ch)
+    {
+      double sumSquares = 0.0;
+      for (int i = 0; i < buffer_frames; ++i)
+      {
+        int16_t *sample_ptr = reinterpret_cast<int16_t *>(buffer.data() + i * frame_size + ch * 2);
+        double sample = static_cast<double>(*sample_ptr) / 32768.0; // normalize to -1.0 to 1.0
+        sumSquares += sample * sample;
+      }
+      rmsLevels[ch] = static_cast<float>(std::sqrt(sumSquares / buffer_frames));
+    }
+
+    // Update shared levels
+    {
+      std::lock_guard<std::mutex> lock(levelsMutex);
+      channelLevels = rmsLevels;
     }
   }
 

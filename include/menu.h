@@ -6,8 +6,9 @@
 #include <ncurses.h>
 #include <iostream>
 
-#include "../include/AudioManager.h"
-#include "../include/Recorder.h"
+#include "AudioManager.h"
+#include "Recorder.h"
+#include "vu_window.h"
 
 struct content_info
 {
@@ -56,6 +57,7 @@ private:
     bool running;
     std::vector<AudioDevice> devices;
     Recorder recorder;
+    vu_window *vu_meters; // window for the VU meter display
 
 public:
     std::vector<std::string> title;
