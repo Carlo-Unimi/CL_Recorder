@@ -79,7 +79,7 @@ void menu::drawContentWindow()
 
 	//* file path input
 	case 2:
-		this->content[2].content = {"Specify file paths for saving recordings:", "[default: ~/recordings/]", "", "press enter to modify"};
+        this->content[2].content = {"Specify file paths for saving recordings:", "[default: ~/Music/recordings/]", "", "press enter to modify"};
 		printContent();
 
 		if (path[0] != '\0')
